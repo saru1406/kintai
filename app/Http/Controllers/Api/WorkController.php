@@ -7,8 +7,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\WorkStartApiRequest;
 use App\Usecases\WorkUsecaseInterface;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class WorkController extends Controller
 {

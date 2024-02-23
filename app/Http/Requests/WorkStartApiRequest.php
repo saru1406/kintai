@@ -22,7 +22,7 @@ class WorkStartApiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'start_date' => ['required', 'string']
+            'start_date' => ['required', 'string'],
         ];
     }
 

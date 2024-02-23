@@ -27,7 +27,7 @@ class WorkUsecase implements WorkUsecaseInterface
         $params = [
             'user_id' => $userId,
             'start_date' => $dateTime->format('Y-m-d'),
-            'start' => $dateTime->format('Y-m-d H:i:s')
+            'start' => $dateTime->format('Y-m-d H:i:s'),
         ];
         $this->workRepository->store($params);
     }

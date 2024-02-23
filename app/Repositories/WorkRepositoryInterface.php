@@ -18,7 +18,7 @@ interface WorkRepositoryInterface
      * 勤怠存在確認
      *
      * @param string $startDate
-     * @return boolean
+     * @return bool
      */
     public function exists(string $startDate): bool;
 }
