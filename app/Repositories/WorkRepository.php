@@ -15,4 +15,12 @@ class WorkRepository implements WorkRepositoryInterface
     {
         Work::create($params);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function exists(string $startDate): bool
+    {
+        return Work::where('start_date', $startDate)->exists();
+    }
 }

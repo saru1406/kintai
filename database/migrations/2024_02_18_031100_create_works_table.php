@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('works', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->date('start_date');
             $table->dateTime('start');
             $table->dateTime('end')->nullable(true);
             $table->dateTime('break_start')->nullable(true);

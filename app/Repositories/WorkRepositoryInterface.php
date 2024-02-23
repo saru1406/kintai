@@ -13,4 +13,12 @@ interface WorkRepositoryInterface
      * @return void
      */
     public function store(array $params): void;
+
+    /**
+     * 勤怠存在確認
+     *
+     * @param string $startDate
+     * @return boolean
+     */
+    public function exists(string $startDate): bool;
 }
