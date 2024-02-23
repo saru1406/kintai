@@ -11,9 +11,9 @@ class WorkRepository implements WorkRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function store(array $params): void
+    public function store(array $params): Work
     {
-        Work::create($params);
+        return Work::create($params);
     }
 
     /**

@@ -22,8 +22,19 @@ class WorkEndApiRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'remarks' => ['string', 'nullable'],
             'end_date' => ['required', 'string'],
         ];
+    }
+
+    /**
+     * 備考取得
+     *
+     * @return string|null
+     */
+    public function getRemarks(): ?string
+    {
+        return $this->input('remarks');
     }
 
     /**

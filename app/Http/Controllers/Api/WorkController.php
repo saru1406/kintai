@@ -17,11 +17,15 @@ class WorkController extends Controller
 
     public function start(WorkStartApiRequest $request)
     {
-        $this->workUsecase->storeStart($request->getStartDate());
+        $this->workUsecase->storeStart($request->getStartDate(), $request->getRemarks());
+
+        return response()->json(['message' => '出勤日時を保存しました']);
     }
 
     public function end(WorkEndApiRequest $request)
     {
-        $this->workUsecase->storeEnd($request->getEndDate());
+        $this->workUsecase->storeEnd($request->getEndDate(), $request->getRemarks());
+
+        return response()->json(['message' => '退勤日時を保存しました']);
     }
 }

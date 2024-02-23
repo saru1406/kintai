@@ -5,37 +5,50 @@ declare(strict_types=1);
 namespace App\Usecases;
 
 use App\Models\Work;
+use App\Repositories\RemarksRepositoryInterface;
 use App\Repositories\WorkRepositoryInterface;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class WorkUsecase implements WorkUsecaseInterface
 {
-    public function __construct(private WorkRepositoryInterface $workRepository)
-    {
+    public function __construct(
+        private WorkRepositoryInterface $workRepository,
+        private RemarksRepositoryInterface $remarksRepository,
+    ) {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function storeStart(string $startDate): void
+    public function storeStart(string $startDate, ?string $remarks): void
     {
         $startDateTime = new DateTime($startDate);
         $userId = Auth::id();
-        $this->existsStartDate($startDateTime->format('Y-m-d'), $userId);
+        $this->checkStartDate($startDateTime->format('Y-m-d'), $userId);
         $params = [
             'user_id' => $userId,
             'start' => $startDateTime->format('Y-m-d H:i:s'),
         ];
-        $this->workRepository->store($params);
+        try {
+            DB::transaction(function () use ($params, $remarks) {
+                $work = $this->workRepository->store($params);
+                if ($remarks) {
+                    $this->storeRemarks($work, $remarks);
+                }
+            });
+        } catch (\Throwable $e) {
+            Log::info($e);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
-    public function storeEnd(string $endDate): void
+    public function storeEnd(string $endDate, ?string $remarks): void
     {
         $userId = Auth::id();
         $endDate = new DateTime($endDate);
@@ -45,7 +58,16 @@ class WorkUsecase implements WorkUsecaseInterface
             'user_id' => $userId,
             'end' => $endDate->format('Y-m-d H:i:s'),
         ];
-        $this->workRepository->updateEnd($work, $params);
+        try {
+            DB::transaction(function () use ($work, $params, $remarks) {
+                $this->workRepository->updateEnd($work, $params);
+                if ($remarks) {
+                    $this->storeRemarks($work, $remarks);
+                }
+            });
+        } catch (\Throwable $e) {
+            Log::info($e);
+        }
     }
 
     /**
@@ -55,7 +77,7 @@ class WorkUsecase implements WorkUsecaseInterface
      * @param int $userId
      * @return void
      */
-    private function existsStartDate(string $startDate, int $userId): void
+    private function checkStartDate(string $startDate, int $userId): void
     {
         $checkDate = $this->workRepository->existsStartDate($userId, $startDate);
         if ($checkDate === true) {
@@ -79,5 +101,19 @@ class WorkUsecase implements WorkUsecaseInterface
             Log::info($message, ['user_id' => $userId]);
             throw new ConflictHttpException($message);
         }
+    }
+
+    /**
+     * 備考保存
+     *
+     * @return void
+     */
+    private function storeRemarks(Work $work, string $remarks): void
+    {
+        $remarksParams = [
+            'work_id' => $work->id,
+            'body' => $remarks,
+        ];
+        $this->remarksRepository->store($remarksParams);
     }
 }

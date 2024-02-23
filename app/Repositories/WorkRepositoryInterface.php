@@ -12,9 +12,9 @@ interface WorkRepositoryInterface
      * 出勤保存
      *
      * @param array $params
-     * @return void
+     * @return Work
      */
-    public function store(array $params): void;
+    public function store(array $params): Work;
 
     /**
      * 退勤保存
