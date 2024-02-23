@@ -12,7 +12,6 @@ class Work extends Model
 
     protected $fillable = [
         'user_id',
-        'start_date',
         'start',
         'end',
         'break_start',

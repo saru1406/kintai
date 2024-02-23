@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\WorkEndApiRequest;
 use App\Http\Requests\WorkStartApiRequest;
 use App\Usecases\WorkUsecaseInterface;
 
@@ -17,5 +18,10 @@ class WorkController extends Controller
     public function start(WorkStartApiRequest $request)
     {
         $this->workUsecase->storeStart($request->getStartDate());
+    }
+
+    public function end(WorkEndApiRequest $request)
+    {
+        $this->workUsecase->storeEnd($request->getEndDate());
     }
 }

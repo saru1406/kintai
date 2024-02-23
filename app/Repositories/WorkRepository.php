@@ -19,8 +19,24 @@ class WorkRepository implements WorkRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function exists(string $startDate): bool
+    public function updateEnd(Work $work, array $params): void
     {
-        return Work::where('start_date', $startDate)->exists();
+        $work->update($params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function firstOrFail(int $userId): Work
+    {
+        return Work::where('user_id', $userId)->orderBy('created_at', 'desc')->firstOrFail();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function existsStartDate(int $userId, string $startDate): bool
+    {
+        return Work::where('user_id', $userId)->whereDate('start', '=', $startDate)->exists();
     }
 }
