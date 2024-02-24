@@ -35,12 +35,8 @@ class WorkRepository implements WorkRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function exists(int $userId, array $params): bool
+    public function exists(int $userId): bool
     {
-        foreach ($params as $key => $value) {
-            $exists = Work::where('user_id', $userId)->whereDate($key, '=', $value)->exists();
-        }
-
-        return $exists;
+        return Work::where('user_id', $userId)->orderBy('created_at', 'desc')->exists();
     }
 }

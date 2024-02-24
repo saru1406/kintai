@@ -8,6 +8,7 @@ use App\Models\Work;
 use App\Repositories\Remarks\RemarksRepositoryInterface;
 use App\Repositories\Work\WorkRepositoryInterface;
 use DateTime;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -28,12 +29,16 @@ class WorkUsecase implements WorkUsecaseInterface
     {
         $startDateTime = new DateTime($startDate);
         $userId = Auth::id();
-        $existsParams = ['start' => $startDateTime->format('Y-m-d')];
-        $this->checkStartDate($existsParams, $userId);
+        $existsWork = $this->workRepository->exists($userId);
+        if ($existsWork) {
+            $work = $this->workRepository->firstOrFail($userId);
+            $this->checkNotEndDate($work, $userId);
+        }
         $params = [
             'user_id' => $userId,
             'start' => $startDateTime->format('Y-m-d H:i:s'),
         ];
+
         try {
             DB::transaction(function () use ($params, $remarks) {
                 $work = $this->workRepository->store($params);
@@ -52,11 +57,13 @@ class WorkUsecase implements WorkUsecaseInterface
         $userId = Auth::id();
         $endDate = new DateTime($endDate);
         $work = $this->workRepository->firstOrFail($userId);
+        $this->checkNotStartDate($work, $userId);
         $this->checkEndDate($work, $userId);
         $params = [
             'user_id' => $userId,
             'end' => $endDate->format('Y-m-d H:i:s'),
         ];
+
         try {
             DB::transaction(function () use ($work, $params, $remarks) {
                 $this->workRepository->update($work, $params);
@@ -74,14 +81,15 @@ class WorkUsecase implements WorkUsecaseInterface
     {
         $userId = Auth::id();
         $breakStartDate = new DateTime($beakStart);
-        $existsParams = ['break_start' => $breakStartDate->format('Y-m-d')];
         $work = $this->workRepository->firstOrFail($userId);
+        $this->checkNotStartDate($work, $userId);
+        $this->checkBreakStart($work, $userId);
         $this->checkEndDate($work, $userId);
-        $this->checkStartDate($existsParams, $userId);
         $params = [
             'user_id' => $userId,
             'break_start' => $breakStartDate->format('Y-m-d H:i:s'),
         ];
+
         try {
             DB::transaction(function () use ($work, $params, $remarks) {
                 $this->workRepository->update($work, $params);
@@ -93,16 +101,31 @@ class WorkUsecase implements WorkUsecaseInterface
     }
 
     /**
-     * 同じ日付があればthrow
+     * 出勤日時がなければthrow
      *
-     * @param array $startDate
+     * @param Work $work
      * @param int $userId
      * @return void
      */
-    private function checkStartDate(array $params, int $userId): void
+    private function checkNotStartDate(Work $work, int $userId): void
     {
-        $checkDate = $this->workRepository->exists($userId, $params);
-        if ($checkDate === true) {
+        if ($work->start === null) {
+            $message = '出勤してください。';
+            Log::info($message, ['user_id' => $userId]);
+            throw new ModelNotFoundException($message);
+        }
+    }
+
+    /**
+     * 退勤日時がなければthrow
+     *
+     * @param Work $work
+     * @param int $userId
+     * @return void
+     */
+    private function checkNotEndDate(Work $work, int $userId): void
+    {
+        if ($work->end === null) {
             $message = '既に出勤しています。';
             Log::info($message, ['user_id' => $userId]);
             throw new ConflictHttpException($message);
@@ -120,6 +143,22 @@ class WorkUsecase implements WorkUsecaseInterface
     {
         if ($work->end) {
             $message = '既に退勤しています。';
+            Log::info($message, ['user_id' => $userId]);
+            throw new ConflictHttpException($message);
+        }
+    }
+
+    /**
+     * 休憩開始日時があればthrow
+     *
+     * @param Work $work
+     * @param int $userId
+     * @return void
+     */
+    private function checkBreakStart(Work $work, int $userId): void
+    {
+        if ($work->break_start) {
+            $message = '既に休憩開始しています。';
             Log::info($message, ['user_id' => $userId]);
             throw new ConflictHttpException($message);
         }

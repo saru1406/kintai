@@ -34,11 +34,10 @@ interface WorkRepositoryInterface
     public function firstOrFail(int $userId): Work;
 
     /**
-     * 存在確認
+     * レコードの存在確認
      *
      * @param int $userId
-     * @param array $params
      * @return bool
      */
-    public function exists(int $userId, array $params): bool;
+    public function exists(int $userId): bool;
 }
