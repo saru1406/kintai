@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use App\Repositories\RemarksRepository;
-use App\Repositories\RemarksRepositoryInterface;
-use App\Repositories\WorkRepository;
-use App\Repositories\WorkRepositoryInterface;
-use App\Usecases\WorkUsecase;
-use App\Usecases\WorkUsecaseInterface;
+use App\Repositories\Remarks\RemarksRepository;
+use App\Repositories\Remarks\RemarksRepositoryInterface;
+use App\Repositories\Work\WorkRepository;
+use App\Repositories\Work\WorkRepositoryInterface;
+use App\Usecases\Work\WorkUsecase;
+use App\Usecases\Work\WorkUsecaseInterface;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

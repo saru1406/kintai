@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Usecases;
+namespace App\Usecases\Work;
 
 interface WorkUsecaseInterface
 {
@@ -23,4 +23,13 @@ interface WorkUsecaseInterface
      * @return void
      */
     public function storeEnd(string $endDate, ?string $remarks): void;
+
+    /**
+     * 休憩開始日時保存
+     *
+     * @param string $beakStart
+     * @param string|null $remarks
+     * @return void
+     */
+    public function storeBreakStart(string $beakStart, ?string $remarks): void;
 }

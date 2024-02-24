@@ -25,4 +25,5 @@ Route::post('login', [LoginController::class, 'login'])->name('login');
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('work/start', [WorkController::class, 'start'])->name('work.start');
     Route::post('work/end', [WorkController::class, 'end'])->name('work.end');
+    Route::post('work/break-start', [WorkController::class, 'breakStart'])->name('work.break-start');
 });

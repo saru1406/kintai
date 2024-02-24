@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Repositories;
+namespace App\Repositories\Work;
 
 use App\Models\Work;
 
@@ -17,13 +17,13 @@ interface WorkRepositoryInterface
     public function store(array $params): Work;
 
     /**
-     * 退勤保存
+     * 勤怠更新
      *
      * @param Work $work
      * @param array $params
      * @return void
      */
-    public function updateEnd(Work $work, array $params): void;
+    public function update(Work $work, array $params): void;
 
     /**
      * 最新のレコード取得
@@ -34,11 +34,11 @@ interface WorkRepositoryInterface
     public function firstOrFail(int $userId): Work;
 
     /**
-     * 出勤存在確認
+     * 存在確認
      *
      * @param int $userId
-     * @param string $startDate
+     * @param array $params
      * @return bool
      */
-    public function existsStartDate(int $userId, string $startDate): bool;
+    public function exists(int $userId, array $params): bool;
 }

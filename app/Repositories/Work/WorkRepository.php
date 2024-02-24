@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Repositories;
+namespace App\Repositories\Work;
 
 use App\Models\Work;
 
@@ -19,7 +19,7 @@ class WorkRepository implements WorkRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function updateEnd(Work $work, array $params): void
+    public function update(Work $work, array $params): void
     {
         $work->update($params);
     }
@@ -35,8 +35,12 @@ class WorkRepository implements WorkRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function existsStartDate(int $userId, string $startDate): bool
+    public function exists(int $userId, array $params): bool
     {
-        return Work::where('user_id', $userId)->whereDate('start', '=', $startDate)->exists();
+        foreach ($params as $key => $value) {
+            $exists = Work::where('user_id', $userId)->whereDate($key, '=', $value)->exists();
+        }
+
+        return $exists;
     }
 }

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Usecases;
+namespace App\Usecases\Work;
 
 use App\Models\Work;
-use App\Repositories\RemarksRepositoryInterface;
-use App\Repositories\WorkRepositoryInterface;
+use App\Repositories\Remarks\RemarksRepositoryInterface;
+use App\Repositories\Work\WorkRepositoryInterface;
 use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +28,8 @@ class WorkUsecase implements WorkUsecaseInterface
     {
         $startDateTime = new DateTime($startDate);
         $userId = Auth::id();
-        $this->checkStartDate($startDateTime->format('Y-m-d'), $userId);
+        $existsParams = ['start' => $startDateTime->format('Y-m-d')];
+        $this->checkStartDate($existsParams, $userId);
         $params = [
             'user_id' => $userId,
             'start' => $startDateTime->format('Y-m-d H:i:s'),
@@ -36,9 +37,7 @@ class WorkUsecase implements WorkUsecaseInterface
         try {
             DB::transaction(function () use ($params, $remarks) {
                 $work = $this->workRepository->store($params);
-                if ($remarks) {
-                    $this->storeRemarks($work, $remarks);
-                }
+                $this->storeRemarks($work, $remarks);
             });
         } catch (\Throwable $e) {
             Log::info($e);
@@ -60,10 +59,8 @@ class WorkUsecase implements WorkUsecaseInterface
         ];
         try {
             DB::transaction(function () use ($work, $params, $remarks) {
-                $this->workRepository->updateEnd($work, $params);
-                if ($remarks) {
-                    $this->storeRemarks($work, $remarks);
-                }
+                $this->workRepository->update($work, $params);
+                $this->storeRemarks($work, $remarks);
             });
         } catch (\Throwable $e) {
             Log::info($e);
@@ -71,15 +68,40 @@ class WorkUsecase implements WorkUsecaseInterface
     }
 
     /**
-     * 出勤日時に同じ日付があればthrow
+     * {@inheritDoc}
+     */
+    public function storeBreakStart(string $beakStart, ?string $remarks): void
+    {
+        $userId = Auth::id();
+        $breakStartDate = new DateTime($beakStart);
+        $existsParams = ['break_start' => $breakStartDate->format('Y-m-d')];
+        $work = $this->workRepository->firstOrFail($userId);
+        $this->checkEndDate($work, $userId);
+        $this->checkStartDate($existsParams, $userId);
+        $params = [
+            'user_id' => $userId,
+            'break_start' => $breakStartDate->format('Y-m-d H:i:s'),
+        ];
+        try {
+            DB::transaction(function () use ($work, $params, $remarks) {
+                $this->workRepository->update($work, $params);
+                $this->storeRemarks($work, $remarks);
+            });
+        } catch (\Throwable $e) {
+            Log::info($e);
+        }
+    }
+
+    /**
+     * 同じ日付があればthrow
      *
-     * @param string $startDate
+     * @param array $startDate
      * @param int $userId
      * @return void
      */
-    private function checkStartDate(string $startDate, int $userId): void
+    private function checkStartDate(array $params, int $userId): void
     {
-        $checkDate = $this->workRepository->existsStartDate($userId, $startDate);
+        $checkDate = $this->workRepository->exists($userId, $params);
         if ($checkDate === true) {
             $message = '既に出勤しています。';
             Log::info($message, ['user_id' => $userId]);
@@ -106,14 +128,18 @@ class WorkUsecase implements WorkUsecaseInterface
     /**
      * 備考保存
      *
+     * @param Work $work
+     * @param string|null $remarks
      * @return void
      */
-    private function storeRemarks(Work $work, string $remarks): void
+    private function storeRemarks(Work $work, ?string $remarks): void
     {
-        $remarksParams = [
-            'work_id' => $work->id,
-            'body' => $remarks,
-        ];
-        $this->remarksRepository->store($remarksParams);
+        if ($remarks) {
+            $remarksParams = [
+                'work_id' => $work->id,
+                'body' => $remarks,
+            ];
+            $this->remarksRepository->store($remarksParams);
+        }
     }
 }
