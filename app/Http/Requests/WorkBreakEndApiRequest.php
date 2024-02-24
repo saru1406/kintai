@@ -42,7 +42,7 @@ class WorkBreakEndApiRequest extends FormRequest
      *
      * @return string
      */
-    public function getBeakEnd(): string
+    public function getBreakEnd(): string
     {
         return $this->input('break_end');
     }

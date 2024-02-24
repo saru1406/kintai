@@ -18,6 +18,7 @@ return new class extends Migration
             $table->dateTime('end')->nullable(true);
             $table->dateTime('break_start')->nullable(true);
             $table->dateTime('break_end')->nullable(true);
+            $table->boolean('is_break_status')->default(false);
             $table->timestamps();
         });
     }

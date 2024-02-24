@@ -16,6 +16,7 @@ class Work extends Model
         'end',
         'break_start',
         'break_end',
+        'is_break_status'
     ];
 
     /**
