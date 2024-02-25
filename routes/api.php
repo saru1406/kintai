@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\LoginController;
+use App\Http\Controllers\Api\BreakTimeController;
 use App\Http\Controllers\Api\WorkController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -25,7 +26,7 @@ Route::post('login', [LoginController::class, 'login'])->name('login');
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('work/start', [WorkController::class, 'start'])->name('work.start');
     Route::post('work/end', [WorkController::class, 'end'])->name('work.end');
-    Route::post('work/break-start', [WorkController::class, 'breakStart'])->name('work.break_start');
-    Route::post('work/break-end', [WorkController::class, 'breakEnd'])->name('work.break-end');
-    Route::get('work/break-status', [WorkController::class, 'fetchBreakStatus'])->name('work.break_status');
+    Route::post('work/break-start', [BreakTimeController::class, 'breakStart'])->name('work.break_start');
+    Route::post('work/break-end', [BreakTimeController::class, 'breakEnd'])->name('work.break-end');
+    Route::get('work/break-status', [BreakTimeController::class, 'fetchBreakStatus'])->name('work.break_status');
 });

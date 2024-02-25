@@ -28,16 +28,16 @@ interface WorkRepositoryInterface
     /**
      * 最新のレコード取得
      *
-     * @param int $userId
+     * @param string $userId
      * @return Work
      */
-    public function firstOrFail(int $userId): Work;
+    public function firstOrFail(string $userId): Work;
 
     /**
      * レコードの存在確認
      *
-     * @param int $userId
+     * @param string $userId
      * @return bool
      */
-    public function exists(int $userId): bool;
+    public function exists(string $userId): bool;
 }

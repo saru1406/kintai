@@ -15,9 +15,6 @@ class Work extends Model
         'user_id',
         'start',
         'end',
-        'break_start',
-        'break_end',
-        'is_break_status'
     ];
 
     /**

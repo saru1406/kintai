@@ -27,7 +27,7 @@ class WorkRepository implements WorkRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function firstOrFail(int $userId): Work
+    public function firstOrFail(string $userId): Work
     {
         return Work::where('user_id', $userId)->orderBy('created_at', 'desc')->firstOrFail();
     }
@@ -35,7 +35,7 @@ class WorkRepository implements WorkRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function exists(int $userId): bool
+    public function exists(string $userId): bool
     {
         return Work::where('user_id', $userId)->orderBy('created_at', 'desc')->exists();
     }

@@ -15,6 +15,7 @@ class BreakTime extends Model
         'work_id',
         'break_start',
         'break_end',
+        'is_break_status',
     ];
 
     /**
