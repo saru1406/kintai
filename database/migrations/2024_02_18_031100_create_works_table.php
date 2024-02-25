@@ -12,13 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('works', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->dateTime('start');
             $table->dateTime('end')->nullable(true);
-            $table->dateTime('break_start')->nullable(true);
-            $table->dateTime('break_end')->nullable(true);
-            $table->boolean('is_break_status')->default(false);
             $table->timestamps();
         });
     }
