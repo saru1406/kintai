@@ -80,16 +80,6 @@ class WorkUsecase implements WorkUsecaseInterface
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function fetchBreakStatus(): bool
-    {
-        $work = $this->workRepository->firstOrFail(Auth::id());
-
-        return (bool) $work->is_break_status;
-    }
-
-    /**
      * 出勤日時がなければthrow
      *
      * @param Work $work
@@ -137,15 +127,23 @@ class WorkUsecase implements WorkUsecaseInterface
         }
     }
 
+    /**
+     * 休憩を終了していなければthrow
+     *
+     * @param Work $work
+     * @param string $userId
+     * @return void
+     */
     private function checkBreakDate(Work $work, string $userId): void
     {
         $breakTime = $this->breakTimeRepository->first($work);
-        if ($breakTime) {
-            if ($breakTime->break_start && !$breakTime->break_end) {
-                $message = '休憩終了してから退勤してください。';
-                Log::info($message, ['user_id' => $userId]);
-                throw new ConflictHttpException($message);
-            }
+        if (! $breakTime) {
+            return;
+        }
+        if ($breakTime->break_start && ! $breakTime->break_end) {
+            $message = '休憩終了してから退勤してください。';
+            Log::info($message, ['user_id' => $userId]);
+            throw new ConflictHttpException($message);
         }
     }
 

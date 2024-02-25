@@ -87,7 +87,13 @@ class BreakTimeUsecase implements BreakTimeUsecaseInterface
      */
     public function fetchBreakStatus(): bool
     {
-        $work = $this->workRepository->firstOrFail(Auth::id());
+        try {
+            $work = $this->workRepository->firstOrFail(Auth::id());
+        } catch (\Throwable $e) {
+            Log::info($e);
+            return false;
+        }
+
         $breakTime = $this->breakTimeRepository->first($work);
         if (!$breakTime) {
             return false;
