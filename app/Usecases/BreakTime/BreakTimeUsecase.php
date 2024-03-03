@@ -91,11 +91,12 @@ class BreakTimeUsecase implements BreakTimeUsecaseInterface
             $work = $this->workRepository->firstOrFail(Auth::id());
         } catch (\Throwable $e) {
             Log::info($e);
+
             return false;
         }
 
         $breakTime = $this->breakTimeRepository->first($work);
-        if (!$breakTime) {
+        if (! $breakTime) {
             return false;
         }
 
@@ -111,7 +112,7 @@ class BreakTimeUsecase implements BreakTimeUsecaseInterface
      */
     private function checkBreakDate(BreakTime $breakTime, string $userId): void
     {
-        if (!$breakTime) {
+        if (! $breakTime) {
             $message = '休憩を開始してください。';
             Log::info($message, ['user_id' => $userId]);
             throw new ModelNotFoundException($message);

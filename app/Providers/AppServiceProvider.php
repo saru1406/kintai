@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\BreakTime\BreakTimeRepository;
 use App\Repositories\BreakTime\BreakTimeRepositoryInterface;
+use App\Repositories\Date\DateRepository;
+use App\Repositories\Date\DateRepositoryInterface;
 use App\Repositories\Remarks\RemarksRepository;
 use App\Repositories\Remarks\RemarksRepositoryInterface;
 use App\Repositories\Work\WorkRepository;
@@ -21,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // 日付
+        $this->app->bind(DateRepositoryInterface::class, DateRepository::class);
+
         // 勤怠
         $this->app->bind(WorkRepositoryInterface::class, WorkRepository::class);
         $this->app->bind(WorkUsecaseInterface::class, WorkUsecase::class);

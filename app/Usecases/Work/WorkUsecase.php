@@ -6,14 +6,17 @@ namespace App\Usecases\Work;
 
 use App\Models\Work;
 use App\Repositories\BreakTime\BreakTimeRepositoryInterface;
+use App\Repositories\Date\DateRepositoryInterface;
 use App\Repositories\Remarks\RemarksRepositoryInterface;
 use App\Repositories\Work\WorkRepositoryInterface;
+use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\Uid\Ulid;
 
 class WorkUsecase implements WorkUsecaseInterface
 {
@@ -21,6 +24,7 @@ class WorkUsecase implements WorkUsecaseInterface
         private WorkRepositoryInterface $workRepository,
         private RemarksRepositoryInterface $remarksRepository,
         private BreakTimeRepositoryInterface $breakTimeRepository,
+        private DateRepositoryInterface $dateRepository,
     ) {
     }
 
@@ -31,14 +35,19 @@ class WorkUsecase implements WorkUsecaseInterface
     {
         $startDateTime = new DateTime($startDate);
         $userId = Auth::id();
-        $existsWork = $this->workRepository->exists($userId);
 
+        $existsDate = $this->dateRepository->existsByDate($startDateTime->format('Y-m-d'));
+        $this->checkDate($existsDate);
+        $currentDate = $this->dateRepository->firstOrFailByCurrentDate(Carbon::now()->format('Y-m-d'));
+
+        $existsWork = $this->workRepository->exists($userId);
         if ($existsWork) {
             $work = $this->workRepository->firstOrFail($userId);
             $this->checkNotEndDate($work, $userId);
         }
         $params = [
             'user_id' => $userId,
+            'date_id' => $currentDate->id,
             'start' => $startDateTime->format('Y-m-d H:i:s'),
         ];
 
@@ -77,6 +86,44 @@ class WorkUsecase implements WorkUsecaseInterface
         } catch (\Throwable $e) {
             Log::info($e);
         }
+    }
+
+    /**
+     * 日付がなければ１か月分の日付を作成
+     *
+     * @param bool $existsDate
+     * @return void
+     */
+    private function checkDate(bool $existsDate): void
+    {
+        if (! $existsDate) {
+            $currentDate = Carbon::now();
+            $startDate = $currentDate->startOfMonth();
+            $endDate = $currentDate->copy()->endOfMonth();
+            $dates = [];
+            $addDate = $startDate->copy();
+            while ($addDate->lessThanOrEqualTo($endDate)) {
+                $dates[] = [
+                    'id' => (string) Ulid::generate(),
+                    'date' => $addDate->format('Y-m-d'),
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ];
+                $addDate = $addDate->copy()->addDay();
+            }
+            $this->bulkInsertDate($dates);
+        }
+    }
+
+    /**
+     * 日付をバルクインサート
+     *
+     * @param array $dates
+     * @return void
+     */
+    private function bulkInsertDate(array $dates): void
+    {
+        $this->dateRepository->store($dates);
     }
 
     /**

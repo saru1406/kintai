@@ -13,6 +13,7 @@ class Work extends Model
 
     protected $fillable = [
         'user_id',
+        'date_id',
         'start',
         'end',
     ];
@@ -25,5 +26,15 @@ class Work extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * 日付と紐づけ
+     *
+     * @return BelongsTo
+     */
+    public function date(): BelongsTo
+    {
+        return $this->belongsTo(Date::class);
     }
 }
