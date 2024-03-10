@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repositories\Date;
 
 use App\Models\Date;
+use Illuminate\Support\Collection;
 
 interface DateRepositoryInterface
 {
@@ -31,4 +32,14 @@ interface DateRepositoryInterface
      * @return Date
      */
     public function firstOrFailByCurrentDate(string $date): Date;
+
+    /**
+     * 取得したい期間とユーザを指定して取得
+     *
+     * @param string $userId
+     * @param string $startDate
+     * @param string $endDate
+     * @return Collection
+     */
+    public function fetchByDate(string $userId, string $startDate, string $endDate): Collection;
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repositories\Date;
 
 use App\Models\Date;
+use Illuminate\Support\Collection;
 
 class DateRepository implements DateRepositoryInterface
 {
@@ -30,5 +31,17 @@ class DateRepository implements DateRepositoryInterface
     public function firstOrFailByCurrentDate(string $date): Date
     {
         return Date::where('date', $date)->firstOrFail();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchByDate(string $userId, string $startDate, string $endDate): Collection
+    {
+        return Date::where('date', '>=', $startDate)
+            ->where('date', '<=', $endDate)
+            ->with(['works' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            }, 'works.breakTimes'])->get();
     }
 }

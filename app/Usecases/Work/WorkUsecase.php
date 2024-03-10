@@ -12,6 +12,7 @@ use App\Repositories\Work\WorkRepositoryInterface;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -86,6 +87,18 @@ class WorkUsecase implements WorkUsecaseInterface
         } catch (\Throwable $e) {
             Log::info($e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchMonthDate(string $year, string $month): Collection
+    {
+        $userId = Auth::id();
+        $targetDate = Carbon::createFromDate((int)$year, (int)$month);
+        $startDate = $targetDate->startOfMonth()->format('Y-m-d');
+        $endDate = $targetDate->copy()->endOfMonth()->format('Y-m-d');
+        return $this->dateRepository->fetchByDate($userId, $startDate, $endDate);
     }
 
     /**

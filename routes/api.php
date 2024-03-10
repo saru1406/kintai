@@ -29,4 +29,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('work/break-start', [BreakTimeController::class, 'breakStart'])->name('work.break_start');
     Route::post('work/break-end', [BreakTimeController::class, 'breakEnd'])->name('work.break-end');
     Route::get('work/break-status', [BreakTimeController::class, 'fetchBreakStatus'])->name('work.break_status');
+    Route::get('works', [WorkController::class, 'fetch'])->name('works');
 });

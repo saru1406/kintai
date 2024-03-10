@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BreakTime extends Model
@@ -21,10 +22,10 @@ class BreakTime extends Model
     /**
      * 勤怠と紐づけ
      *
-     * @return HasMany
+     * @return BelongsTo
      */
-    public function works(): HasMany
+    public function work(): BelongsTo
     {
-        return $this->hasMany(Work::class);
+        return $this->belongsTo(Work::class);
     }
 }
