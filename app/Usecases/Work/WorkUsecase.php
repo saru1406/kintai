@@ -95,9 +95,10 @@ class WorkUsecase implements WorkUsecaseInterface
     public function fetchMonthDate(string $year, string $month): Collection
     {
         $userId = Auth::id();
-        $targetDate = Carbon::createFromDate((int)$year, (int)$month);
+        $targetDate = Carbon::createFromDate((int) $year, (int) $month);
         $startDate = $targetDate->startOfMonth()->format('Y-m-d');
         $endDate = $targetDate->copy()->endOfMonth()->format('Y-m-d');
+
         return $this->dateRepository->fetchByDate($userId, $startDate, $endDate);
     }
 

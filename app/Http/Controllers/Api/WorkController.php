@@ -52,7 +52,7 @@ class WorkController extends Controller
     public function fetch(FetchWorkDateApiRequest $request): JsonResponse
     {
         $data = $this->workUsecase->fetchMonthDate($request->getYear(), $request->getMonth());
-        
+
         return response()->json([
             'work_data' => $data,
             'message' => '取得しました。',
