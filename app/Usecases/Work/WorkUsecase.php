@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Usecases\Work;
 
+use App\Models\Date;
 use App\Models\Work;
 use App\Repositories\BreakTime\BreakTimeRepositoryInterface;
 use App\Repositories\Date\DateRepositoryInterface;
@@ -49,7 +50,7 @@ class WorkUsecase implements WorkUsecaseInterface
         $params = [
             'user_id' => $userId,
             'date_id' => $currentDate->id,
-            'start' => $startDateTime->format('Y-m-d H:i:s'),
+            'start' => $startDateTime->format('Y-m-d H:i'),
         ];
 
         try {
@@ -76,7 +77,7 @@ class WorkUsecase implements WorkUsecaseInterface
         $this->checkBreakDate($work, $userId);
         $params = [
             'user_id' => $userId,
-            'end' => $endDate->format('Y-m-d H:i:s'),
+            'end' => $endDate->format('Y-m-d H:i'),
         ];
 
         try {
@@ -98,8 +99,27 @@ class WorkUsecase implements WorkUsecaseInterface
         $targetDate = Carbon::createFromDate((int) $year, (int) $month);
         $startDate = $targetDate->startOfMonth()->format('Y-m-d');
         $endDate = $targetDate->copy()->endOfMonth()->format('Y-m-d');
+        $dates = $this->dateRepository->fetchByDate($userId, $startDate, $endDate);
+        $dates->map(function ($date) {
+            $this->calculateSubtotal($date);
+            $this->calculateTotal($date);
+        });
 
-        return $this->dateRepository->fetchByDate($userId, $startDate, $endDate);
+        return $dates;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchViewDataShow(string $year, string $month, string $day): Date
+    {
+        $userId = Auth::id();
+        $targetDate = Carbon::createFromDate((int) $year, (int) $month, (int) $day)->format('Y-m-d');
+        $date = $this->dateRepository->fetchByFirstDate($userId, $targetDate);
+        $this->calculateSubtotal($date);
+        $this->calculateTotal($date);
+
+        return $date;
     }
 
     /**
@@ -110,7 +130,7 @@ class WorkUsecase implements WorkUsecaseInterface
      */
     private function checkDate(bool $existsDate): void
     {
-        if (! $existsDate) {
+        if (!$existsDate) {
             $currentDate = Carbon::now();
             $startDate = $currentDate->startOfMonth();
             $endDate = $currentDate->copy()->endOfMonth();
@@ -119,6 +139,7 @@ class WorkUsecase implements WorkUsecaseInterface
             while ($addDate->lessThanOrEqualTo($endDate)) {
                 $dates[] = [
                     'id' => (string) Ulid::generate(),
+                    'year' => $addDate->format('Y'),
                     'date' => $addDate->format('Y-m-d'),
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
@@ -198,10 +219,10 @@ class WorkUsecase implements WorkUsecaseInterface
     private function checkBreakDate(Work $work, string $userId): void
     {
         $breakTime = $this->breakTimeRepository->first($work);
-        if (! $breakTime) {
+        if (!$breakTime) {
             return;
         }
-        if ($breakTime->break_start && ! $breakTime->break_end) {
+        if ($breakTime->break_start && !$breakTime->break_end) {
             $message = '休憩終了してから退勤してください。';
             Log::info($message, ['user_id' => $userId]);
             throw new ConflictHttpException($message);
@@ -224,5 +245,48 @@ class WorkUsecase implements WorkUsecaseInterface
             ];
             $this->remarksRepository->store($remarksParams);
         }
+    }
+
+    /**
+     * 小計を計算
+     *
+     * @return void
+     */
+    private function calculateSubtotal(Date $date): void
+    {
+        $date->works->each(function ($work) {
+            $startDate = new Carbon($work->start);
+            $endDate = new Carbon($work->end);
+            $diffInMinutes = $startDate->diffInMinutes($endDate);
+            $hours = floor($diffInMinutes / 60);
+            $minutes = floor(($diffInMinutes % 60));
+            $work->subtotal = sprintf('%02d:%02d', $hours, $minutes);
+            $work->start = $startDate->format('H:i');
+            $work->end = $endDate->format('H:i');
+        });
+    }
+
+    /**
+     * 合計を計算
+     *
+     * @param Date $date
+     * @return void
+     */
+    private function calculateTotal(Date $date): void
+    {
+        // 各作業の小計（分単位）を計算
+        $totalMinutes = $date->works->reduce(function ($carry, $work) {
+            $parts = explode(':', $work->subtotal); // 小計を時間と分に分割
+            $minutes = ($parts[0] * 60) + $parts[1]; // 時間を分に変換して合計
+            return $carry + $minutes;
+        }, 0);
+
+        // 合計した分を時間と分に変換
+        $hours = floor($totalMinutes / 60);
+        $minutes = $totalMinutes % 60;
+
+        // フォーマットしてログに記録
+        $totalFormatted = sprintf('%02d:%02d', $hours, $minutes);
+        $date->total = $totalFormatted;
     }
 }

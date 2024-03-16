@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,8 +14,20 @@ class Date extends Model
 
     protected $fillable = [
         'id',
+        'year',
         'date',
     ];
+
+    /**
+     * 取得時dateカラムをフォーマット
+     *
+     * @param string $value
+     * @return string
+     */
+    public function getDateAttribute(string $value): string
+    {
+        return Carbon::parse($value)->format('m月d日');
+    }
 
     /**
      * 勤怠と紐づけ

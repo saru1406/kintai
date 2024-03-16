@@ -44,4 +44,14 @@ class DateRepository implements DateRepositoryInterface
                 $query->where('user_id', $userId);
             }, 'works.breakTimes'])->get();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchByFirstDate(string $userId, string $date): Date
+    {
+        return Date::where('date', $date)->with(['works' => function ($query) use($userId) {
+            $query->where('user_id', $userId);
+        }, 'works.breakTimes', 'works.remarks'])->first();
+    }
 }

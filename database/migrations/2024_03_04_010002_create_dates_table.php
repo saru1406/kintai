@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('dates', function (Blueprint $table) {
             $table->ulid('id')->primary();
+            $table->year('year');
             $table->date('date')->unique();
             $table->timestamps();
         });

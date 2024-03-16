@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Usecases\Work;
 
+use App\Models\Date;
 use Illuminate\Support\Collection;
 
 interface WorkUsecaseInterface
@@ -34,4 +35,14 @@ interface WorkUsecaseInterface
      * @return Collection
      */
     public function fetchMonthDate(string $year, string $month): Collection;
+
+    /**
+     * show画面データを取得
+     *
+     * @param string $year
+     * @param string $month
+     * @param string $day
+     * @return Date
+     */
+    public function fetchViewDataShow(string $year, string $month, string $day): Date;
 }

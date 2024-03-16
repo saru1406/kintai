@@ -42,4 +42,13 @@ interface DateRepositoryInterface
      * @return Collection
      */
     public function fetchByDate(string $userId, string $startDate, string $endDate): Collection;
+
+    /**
+     * 日付を指定して取得
+     *
+     * @param string $userId
+     * @param string $date
+     * @return Date
+     */
+    public function fetchByFirstDate(string $userId, string $date): Date;
 }

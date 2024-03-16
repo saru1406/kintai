@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FetchWorkDateApiRequest;
+use App\Http\Requests\FetchWorkShowApiRequest;
 use App\Http\Requests\WorkEndApiRequest;
 use App\Http\Requests\WorkStartApiRequest;
 use App\Usecases\Work\WorkUsecaseInterface;
@@ -49,13 +50,29 @@ class WorkController extends Controller
      * @param FetchWorkDateApiRequest $request
      * @return JsonResponse
      */
-    public function fetch(FetchWorkDateApiRequest $request): JsonResponse
+    public function index(FetchWorkDateApiRequest $request): JsonResponse
     {
         $data = $this->workUsecase->fetchMonthDate($request->getYear(), $request->getMonth());
 
         return response()->json([
             'work_data' => $data,
             'message' => '取得しました。',
+        ]);
+    }
+
+    /**
+     * show画面データ取得
+     *
+     * @param FetchWorkShowApiRequest $request
+     * @return JsonResponse
+     */
+    public function show(FetchWorkShowApiRequest $request): JsonResponse
+    {
+        $data = $this->workUsecase->fetchViewDataShow($request->getYear(), $request->getMonth(), $request->getDay());
+
+        return response()->json([
+            'work_date' => $data,
+            'message' => '取得しました。'
         ]);
     }
 }
