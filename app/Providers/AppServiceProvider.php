@@ -12,6 +12,8 @@ use App\Repositories\Work\WorkRepository;
 use App\Repositories\Work\WorkRepositoryInterface;
 use App\Usecases\BreakTime\BreakTimeUsecase;
 use App\Usecases\BreakTime\BreakTimeUsecaseInterface;
+use App\Usecases\Csv\CsvWorkUsecase;
+use App\Usecases\Csv\CsvWorkUsecaseInterface;
 use App\Usecases\Work\WorkUsecase;
 use App\Usecases\Work\WorkUsecaseInterface;
 use Illuminate\Support\ServiceProvider;
@@ -29,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
         // 勤怠
         $this->app->bind(WorkRepositoryInterface::class, WorkRepository::class);
         $this->app->bind(WorkUsecaseInterface::class, WorkUsecase::class);
+
+        // 勤怠CSV
+        $this->app->bind(CsvWorkUsecaseInterface::class, CsvWorkUsecase::class);
 
         // 休憩時間
         $this->app->bind(BreakTimeRepositoryInterface::class, BreakTimeRepository::class);

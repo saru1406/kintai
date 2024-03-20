@@ -262,7 +262,9 @@ class WorkUsecase implements WorkUsecaseInterface
             $minutes = floor(($diffInMinutes % 60));
             $work->subtotal = sprintf('%02d:%02d', $hours, $minutes);
             $work->start = $startDate->format('H:i');
-            $work->end = $endDate->format('H:i');
+            if ($work->end) {
+                $work->end = $endDate->format('H:i');
+            }
         });
     }
 
