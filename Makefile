@@ -57,3 +57,8 @@ npm-run-dev:
 yarn:
 	./vendor/bin/sail yarn
 	./vendor/bin/sail yarn dev
+ide-helper:
+	./vendor/bin/sail php artisan clear-compiled
+	./vendor/bin/sail php artisan ide-helper:generate
+	./vendor/bin/sail php artisan ide-helper:models --write-mixin
+	./vendor/bin/sail php artisan ide-helper:meta

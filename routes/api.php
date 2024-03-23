@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\BreakTimeController;
 use App\Http\Controllers\Api\CsvWorkController;
 use App\Http\Controllers\Api\WorkController;
+use App\Http\Controllers\PdfController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -35,7 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('work/break-start', [BreakTimeController::class, 'breakStart'])->name('work.break_start');
     Route::post('work/break-end', [BreakTimeController::class, 'breakEnd'])->name('work.break-end');
     Route::get('work/break-status', [BreakTimeController::class, 'fetchBreakStatus'])->name('work.break_status');
-    
+
     // 勤怠CSV
     Route::get('works/csv', CsvWorkController::class)->name('works.csv_export');
+
+    // 勤怠PDF
+    Route::get('works/pdf', PdfController::class)->name('work.pdf');
 });

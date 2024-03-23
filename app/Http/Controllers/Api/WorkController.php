@@ -72,7 +72,7 @@ class WorkController extends Controller
 
         return response()->json([
             'work_date' => $data,
-            'message' => '取得しました。'
+            'message' => '取得しました。',
         ]);
     }
 }

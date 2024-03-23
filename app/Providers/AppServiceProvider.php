@@ -10,6 +10,8 @@ use App\Repositories\Remarks\RemarksRepository;
 use App\Repositories\Remarks\RemarksRepositoryInterface;
 use App\Repositories\Work\WorkRepository;
 use App\Repositories\Work\WorkRepositoryInterface;
+use App\Services\Pdf\PdfService;
+use App\Services\Pdf\PdfServiceInterface;
 use App\Usecases\BreakTime\BreakTimeUsecase;
 use App\Usecases\BreakTime\BreakTimeUsecaseInterface;
 use App\Usecases\Csv\CsvWorkUsecase;
@@ -41,6 +43,9 @@ class AppServiceProvider extends ServiceProvider
 
         // 備考
         $this->app->bind(RemarksRepositoryInterface::class, RemarksRepository::class);
+
+        // PDF出力
+        $this->app->bind(PdfServiceInterface::class, PdfService::class);
     }
 
     /**

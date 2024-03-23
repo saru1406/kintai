@@ -18,6 +18,7 @@ class CsvWorkController extends Controller
     public function __invoke(CsvWorkApiRequest $request)
     {
         $dates = $this->workUsecase->fetchMonthDate($request->getYear(), $request->getMonth());
+
         return $this->csvWorkUsecase->exportCsv($dates);
     }
 }

@@ -130,7 +130,7 @@ class WorkUsecase implements WorkUsecaseInterface
      */
     private function checkDate(bool $existsDate): void
     {
-        if (!$existsDate) {
+        if (! $existsDate) {
             $currentDate = Carbon::now();
             $startDate = $currentDate->startOfMonth();
             $endDate = $currentDate->copy()->endOfMonth();
@@ -219,10 +219,10 @@ class WorkUsecase implements WorkUsecaseInterface
     private function checkBreakDate(Work $work, string $userId): void
     {
         $breakTime = $this->breakTimeRepository->first($work);
-        if (!$breakTime) {
+        if (! $breakTime) {
             return;
         }
-        if ($breakTime->break_start && !$breakTime->break_end) {
+        if ($breakTime->break_start && ! $breakTime->break_end) {
             $message = '休憩終了してから退勤してください。';
             Log::info($message, ['user_id' => $userId]);
             throw new ConflictHttpException($message);
@@ -280,6 +280,7 @@ class WorkUsecase implements WorkUsecaseInterface
         $totalMinutes = $date->works->reduce(function ($carry, $work) {
             $parts = explode(':', $work->subtotal); // 小計を時間と分に分割
             $minutes = ($parts[0] * 60) + $parts[1]; // 時間を分に変換して合計
+
             return $carry + $minutes;
         }, 0);
 
