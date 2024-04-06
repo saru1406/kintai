@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\BreakTimeController;
 use App\Http\Controllers\Api\CsvWorkController;
 use App\Http\Controllers\Api\WorkController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PdfController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,7 +24,10 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('login', [LoginController::class, 'login'])->name('login');
+// Route::post('login', [LoginController::class, 'login'])->name('login');
+Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+    ->middleware('guest')
+    ->name('login');
 
 Route::middleware('auth:sanctum')->group(function () {
     // 勤怠
